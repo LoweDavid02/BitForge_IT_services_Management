@@ -1,92 +1,61 @@
-# BitForge IT Services Platform
+# BitForge IT Services Management Platform
 
-A professional, scalable IT services platform built with React, Vite, and Tailwind CSS.
+A comprehensive IT services management platform built with React, Vite, and Tailwind CSS. Features a modern admin dashboard with analytics, booking management, and client engagement tools.
 
-## 🚀 Features
+## 🌐 Live Demo
 
-### 6 Main Screens
+**https://lowedavid02.github.io/BitForge_IT_services_Management/**
 
-1. **Home Page**
-   - Hero section with call-to-action buttons
-   - Animated marquee strip
-   - Mission statistics (10+ Team Members, 2-Month Delivery, International Clients)
-   - Responsive design
+## 🔑 Admin Access
 
-2. **Portfolio & Services**
-   - 3-column masonry portfolio grid with 6 projects
-   - Service cards (Web Development, Mobile Apps, UI/UX Design, IT Consulting)
-   - Contact options (Email, Messenger, WhatsApp)
-   - Hover effects and animations
+- **Username**: `admin`
+- **Password**: `BitForge2026!`
 
-3. **Booking & Reservation**
-   - 3-step wizard (Select Service → Choose Date & Time → Confirm)
-   - Interactive calendar for June 2026
-   - Time slot selection
-   - Form validation
-   - Confirmation summary
+## ✨ Features
 
-4. **Meet the Team**
-   - Department filtering (All, Management, Design, Development, QA)
-   - 10 team members with roles and photos
-   - Featured member badge for Isacaar Manlulu
-   - Responsive grid layout
+### Public Pages
+- **Home**: Modern landing page with hero section and service overview
+- **Portfolio**: Showcase of completed projects and case studies
+- **Team**: Meet the team behind BitForge IT
+- **Feedback**: Client testimonials and feedback system
+- **Booking**: Service booking and consultation scheduling
 
-5. **Feedback Page**
-   - Contact form with validation
-   - 5-star rating system
-   - Service dropdown selection
-   - Success state animation
-   - Encryption notice
+### Admin Dashboard
+- **Dashboard**: Overview with key metrics and system status
+- **Analytics**: Comprehensive analytics with interactive charts
+  - Revenue growth trends
+  - Service performance metrics
+  - User engagement analytics
+  - Geographic distribution
+  - Conversion funnel
+  - Client retention metrics
+- **Bookings**: Manage client bookings and appointments
+- **Calendar**: Schedule and event management
+- **Settings**: System configuration and preferences
+- **Profile**: Admin profile management with avatar customization
 
-6. **Admin Dashboard (RBAC)**
-   - Sidebar navigation
-   - Metrics cards (Total Employees, Admins, Developers, QA)
-   - Employee access table with role management
-   - Audit log with live access changes
-   - Admin-only badge
+## 🚀 Quick Start
 
-## 🎨 Design System
-
-### Color Palette
-- Background Primary: `#000000`
-- Background Surface: `#0D1117`
-- Background Card: `#161B22`
-- Accent Blue: `#0066FF`
-- Accent Blue Deep: `#1A3AFF`
-- Accent Blue Glow: `#3D8BFF`
-- Text Primary: `#FFFFFF`
-- Text Muted: `#A0AEC0`
-- Border/Divider: `#1C2333`
-- White Contrast: `#F0F4FF`
-
-### Typography
-- **Display/H1**: Syne (bold, 64-80px)
-- **Headings H2-H3**: Syne (36-48px, weight 600)
-- **Body**: DM Sans (16-18px, weight 400)
-- **Code/Labels**: JetBrains Mono (11-13px, uppercase, letter-spacing 0.08em)
-
-### Components
-- **Primary Button**: Solid #0066FF, white text, 8px radius, blue glow on hover
-- **Secondary Button**: Transparent, #0066FF border, fills blue on hover
-- **Input Fields**: #0D1117 bg, #1C2333 border, blue ring on focus
-- **Cards**: #0D1117 bg, #1C2333 border, shadow rgba(0,102,255,0.08)
-- **Badges/Pills**: Solid blue active, dark grey inactive, uppercase monospace
-
-## 🛠️ Tech Stack
-
-- **React 19.2.6** - UI library
-- **Vite 8.0.16** - Build tool
-- **React Router DOM 7.16.0** - Routing
-- **Tailwind CSS 3** - Styling
-- **Google Fonts** - Syne, DM Sans, JetBrains Mono
-
-## 📦 Installation
+### Installation
 
 ```bash
+# Clone the repository
+git clone git@github.com:LoweDavid02/BitForge_IT_services_Management.git
+
+# Navigate to project directory
+cd BitForge_IT_services_Management
+
 # Install dependencies
 npm install
 
 # Start development server
+npm run dev
+```
+
+### Development
+
+```bash
+# Run development server
 npm run dev
 
 # Build for production
@@ -94,76 +63,167 @@ npm run build
 
 # Preview production build
 npm run preview
+
+# Lint code
+npm run lint
 ```
 
-## 🌐 Routes
+### Deployment
 
-- `/` - Home page
-- `/portfolio` - Portfolio & Services
-- `/booking` - Booking & Reservation
-- `/team` - Meet the Team
-- `/feedback` - Feedback form
-- `/admin` - Admin Dashboard (RBAC)
+```bash
+# Deploy to GitHub Pages
+npm run deploy
+```
 
-## 📱 Responsive Design
+## 📚 Documentation
 
-The platform is fully responsive with breakpoints for:
-- Mobile (< 640px)
-- Tablet (640px - 1024px)
-- Desktop (> 1024px)
+Complete documentation is available in the `/docs` folder:
 
-## ✨ Key Features
+### Quick Links
+- **[📖 Documentation Index](./docs/INDEX.md)** - Complete documentation overview
+- **[🚀 Quick Deploy Guide](./docs/QUICK_DEPLOY.md)** - Fast deployment reference
+- **[🌐 Deployment Guide](./docs/DEPLOYMENT_GUIDE.md)** - Full deployment instructions
+- **[📊 Analytics Features](./docs/ANALYTICS_FUNCTIONAL_FEATURES.md)** - Analytics documentation
+- **[👤 Admin Profile](./docs/ADMIN_PROFILE_IMPLEMENTATION.md)** - Profile system guide
+- **[📁 Project Structure](./docs/PROJECT_STRUCTURE.md)** - Architecture overview
 
-### Animations
-- Smooth page transitions
-- Hover effects on cards and buttons
-- Marquee scrolling text
-- Step wizard transitions
-- Blue glow effects
+### Documentation Categories
+- **Deployment**: GitHub Pages setup and deployment guides
+- **Admin Features**: Dashboard, analytics, profile, and sidebar documentation
+- **Analytics**: Interactive charts, data export, and filtering
+- **Implementation**: Feature implementation and update summaries
+- **Verification**: Testing checklists and verification procedures
 
-### Functionality
-- Working calendar with date selection
-- Form validation
-- Multi-step booking wizard
-- Department filtering
-- Star rating system
-- Mobile-responsive navigation
+## 🛠️ Tech Stack
 
-### Accessibility
-- Semantic HTML
-- ARIA labels
-- Keyboard navigation
-- Focus states
-- Screen reader friendly
+- **Frontend Framework**: React 19.2.6
+- **Build Tool**: Vite 8.0.16
+- **Styling**: Tailwind CSS 3.4.19
+- **Routing**: React Router DOM 7.16.0
+- **Fonts**: Syne, DM Sans, JetBrains Mono
+- **Deployment**: GitHub Pages
 
-## 🎯 Team Members
+## 🎨 Design System
 
-### Management
-- **Isacaar Manlulu** - Project Manager / Proprietor (Featured)
-- **Numer Lumbrino** - Business Analyst
+### Colors
+- **Primary**: #0066FF (Accent Blue)
+- **Background**: #000000 (Primary), #0D1117 (Surface), #161B22 (Card)
+- **Text**: #FFFFFF (Primary), #A0AEC0 (Muted)
+- **Border**: #1C2333
 
-### Design
-- **Ma. Hermosa Malapit** - Design Lead
-- **Rizalyne Asaldo** - UI/UX Designer
-- **Lowe David Tubat** - UI/UX Designer & Front-End
+### Typography
+- **Headings**: Syne (Bold)
+- **Body**: DM Sans
+- **Code/Labels**: JetBrains Mono
 
-### Development
-- **Ceejay Santos** - Lead Developer
-- **Vincent Duriga** - Full Stack Developer
-- **Rasheed Gavin Esponga** - Full Stack Developer
+## 📂 Project Structure
 
-### Quality Assurance
-- **Lei Ann Judea Dico** - QA Lead
-- **Jorilyn Pantallano** - QA Tester
+```
+bitforge-project/
+├── docs/                    # Complete documentation
+├── src/
+│   ├── assets/             # Images and static files
+│   ├── components/         # Reusable components
+│   │   ├── admin/         # Admin-specific components
+│   │   ├── Button.jsx
+│   │   ├── Card.jsx
+│   │   ├── Input.jsx
+│   │   └── ...
+│   ├── pages/             # Page components
+│   │   ├── Home.jsx
+│   │   ├── Admin.jsx
+│   │   ├── AdminProfile.jsx
+│   │   └── ...
+│   ├── App.jsx            # Main app component
+│   ├── main.jsx           # Entry point
+│   └── index.css          # Global styles
+├── public/                # Public assets
+├── dist/                  # Build output
+├── package.json           # Dependencies
+├── vite.config.js         # Vite configuration
+└── tailwind.config.js     # Tailwind configuration
+```
 
-## 📄 License
+## 🔧 Configuration
 
-Private - BitForge IT Services
+### Vite Configuration
+The project is configured for GitHub Pages deployment with the base path set to `/BitForge_IT_services_Management/`.
 
-## 🤝 Contributing
+### Environment
+- Node.js 18+ recommended
+- npm or yarn package manager
 
-This is a private project for BitForge IT Services.
+## 📊 Analytics Features
+
+The analytics dashboard includes:
+- **Time Range Selector**: Filter data by Today, Week, Month, Quarter, Year
+- **Data Export**: Export analytics in JSON or CSV format
+- **Interactive Charts**: Hover tooltips and dynamic visualizations
+- **Service Filtering**: Filter metrics by service type
+- **Real-time Refresh**: Update data with loading states
+
+## 🔐 Authentication
+
+Simple username/password authentication for admin access:
+- Username: `admin`
+- Password: `BitForge2026!`
+
+## 🌟 Key Features
+
+### Admin Dashboard
+- ✅ Fixed sidebar navigation
+- ✅ Logout confirmation modal
+- ✅ Profile management with avatar upload
+- ✅ Responsive design
+- ✅ Dark theme UI
+
+### Analytics
+- ✅ Revenue growth tracking
+- ✅ Service performance metrics
+- ✅ User engagement analytics
+- ✅ Geographic distribution
+- ✅ Conversion funnel analysis
+- ✅ Client retention metrics
+- ✅ Export functionality
+
+### User Experience
+- ✅ Smooth animations and transitions
+- ✅ Interactive hover states
+- ✅ Loading states for async operations
+- ✅ Form validation
+- ✅ Responsive mobile design
+
+## 🚀 Deployment
+
+The project is deployed on GitHub Pages and automatically builds from the `gh-pages` branch.
+
+### Deploy Command
+```bash
+npm run deploy
+```
+
+This command:
+1. Builds the project (`npm run build`)
+2. Deploys to GitHub Pages (`gh-pages -d dist`)
+
+See [DEPLOYMENT_GUIDE.md](./docs/DEPLOYMENT_GUIDE.md) for detailed instructions.
+
+## 📝 License
+
+This project is private and proprietary.
+
+## 👥 Contributors
+
+- Development Team: BitForge IT Services
+
+## 📞 Support
+
+For documentation and guides, see the `/docs` folder or visit the [Documentation Index](./docs/INDEX.md).
 
 ---
 
-**Built with ❤️ by the BitForge Team**
+**Live URL**: https://lowedavid02.github.io/BitForge_IT_services_Management/
+
+**Repository**: https://github.com/LoweDavid02/BitForge_IT_services_Management
+
+**Status**: ✅ Production Ready

@@ -1,0 +1,169 @@
+# BitForge IT Services Platform
+
+A professional, scalable IT services platform built with React, Vite, and Tailwind CSS.
+
+## 🚀 Features
+
+### 6 Main Screens
+
+1. **Home Page**
+   - Hero section with call-to-action buttons
+   - Animated marquee strip
+   - Mission statistics (10+ Team Members, 2-Month Delivery, International Clients)
+   - Responsive design
+
+2. **Portfolio & Services**
+   - 3-column masonry portfolio grid with 6 projects
+   - Service cards (Web Development, Mobile Apps, UI/UX Design, IT Consulting)
+   - Contact options (Email, Messenger, WhatsApp)
+   - Hover effects and animations
+
+3. **Booking & Reservation**
+   - 3-step wizard (Select Service → Choose Date & Time → Confirm)
+   - Interactive calendar for June 2026
+   - Time slot selection
+   - Form validation
+   - Confirmation summary
+
+4. **Meet the Team**
+   - Department filtering (All, Management, Design, Development, QA)
+   - 10 team members with roles and photos
+   - Featured member badge for Isacaar Manlulu
+   - Responsive grid layout
+
+5. **Feedback Page**
+   - Contact form with validation
+   - 5-star rating system
+   - Service dropdown selection
+   - Success state animation
+   - Encryption notice
+
+6. **Admin Dashboard (RBAC)**
+   - Sidebar navigation
+   - Metrics cards (Total Employees, Admins, Developers, QA)
+   - Employee access table with role management
+   - Audit log with live access changes
+   - Admin-only badge
+
+## 🎨 Design System
+
+### Color Palette
+- Background Primary: `#000000`
+- Background Surface: `#0D1117`
+- Background Card: `#161B22`
+- Accent Blue: `#0066FF`
+- Accent Blue Deep: `#1A3AFF`
+- Accent Blue Glow: `#3D8BFF`
+- Text Primary: `#FFFFFF`
+- Text Muted: `#A0AEC0`
+- Border/Divider: `#1C2333`
+- White Contrast: `#F0F4FF`
+
+### Typography
+- **Display/H1**: Syne (bold, 64-80px)
+- **Headings H2-H3**: Syne (36-48px, weight 600)
+- **Body**: DM Sans (16-18px, weight 400)
+- **Code/Labels**: JetBrains Mono (11-13px, uppercase, letter-spacing 0.08em)
+
+### Components
+- **Primary Button**: Solid #0066FF, white text, 8px radius, blue glow on hover
+- **Secondary Button**: Transparent, #0066FF border, fills blue on hover
+- **Input Fields**: #0D1117 bg, #1C2333 border, blue ring on focus
+- **Cards**: #0D1117 bg, #1C2333 border, shadow rgba(0,102,255,0.08)
+- **Badges/Pills**: Solid blue active, dark grey inactive, uppercase monospace
+
+## 🛠️ Tech Stack
+
+- **React 19.2.6** - UI library
+- **Vite 8.0.16** - Build tool
+- **React Router DOM 7.16.0** - Routing
+- **Tailwind CSS 3** - Styling
+- **Google Fonts** - Syne, DM Sans, JetBrains Mono
+
+## 📦 Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+## 🌐 Routes
+
+- `/` - Home page
+- `/portfolio` - Portfolio & Services
+- `/booking` - Booking & Reservation
+- `/team` - Meet the Team
+- `/feedback` - Feedback form
+- `/admin` - Admin Dashboard (RBAC)
+
+## 📱 Responsive Design
+
+The platform is fully responsive with breakpoints for:
+- Mobile (< 640px)
+- Tablet (640px - 1024px)
+- Desktop (> 1024px)
+
+## ✨ Key Features
+
+### Animations
+- Smooth page transitions
+- Hover effects on cards and buttons
+- Marquee scrolling text
+- Step wizard transitions
+- Blue glow effects
+
+### Functionality
+- Working calendar with date selection
+- Form validation
+- Multi-step booking wizard
+- Department filtering
+- Star rating system
+- Mobile-responsive navigation
+
+### Accessibility
+- Semantic HTML
+- ARIA labels
+- Keyboard navigation
+- Focus states
+- Screen reader friendly
+
+## 🎯 Team Members
+
+### Management
+- **Isacaar Manlulu** - Project Manager / Proprietor (Featured)
+- **Numer Lumbrino** - Business Analyst
+
+### Design
+- **Ma. Hermosa Malapit** - Design Lead
+- **Rizalyne Asaldo** - UI/UX Designer
+- **Lowe David Tubat** - UI/UX Designer & Front-End
+
+### Development
+- **Ceejay Santos** - Lead Developer
+- **Vincent Duriga** - Full Stack Developer
+- **Rasheed Gavin Esponga** - Full Stack Developer
+
+### Quality Assurance
+- **Lei Ann Judea Dico** - QA Lead
+- **Jorilyn Pantallano** - QA Tester
+
+## 📄 License
+
+Private - BitForge IT Services
+
+## 🤝 Contributing
+
+This is a private project for BitForge IT Services.
+
+---
+
+**Built with ❤️ by the BitForge Team**
