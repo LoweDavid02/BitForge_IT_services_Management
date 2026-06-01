@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bg-primary text-text-primary font-dm-sans;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-syne;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-accent-blue text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:shadow-blue-glow hover:bg-accent-blue-deep;
+  }
+  
+  .btn-secondary {
+    @apply bg-transparent border-2 border-accent-blue text-accent-blue px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-accent-blue hover:text-white;
+  }
+  
+  .input-field {
+    @apply bg-bg-surface border border-border-color text-text-primary px-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-accent-blue transition-all;
+  }
+  
+  .card {
+    @apply bg-bg-surface border border-border-color rounded-lg shadow-card;
+  }
+  
+  .badge {
+    @apply font-jetbrains text-xs uppercase tracking-wider px-3 py-1 rounded-full;
+  }
+  
+  .badge-active {
+    @apply badge bg-accent-blue text-white;
+  }
+  
+  .badge-inactive {
+    @apply badge bg-bg-card text-text-muted;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0D1117;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1C2333;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0066FF;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Marquee Animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: inline-block;
+  animation: marquee 20s linear infinite;
+}
+
+/* Gradient Radial */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
