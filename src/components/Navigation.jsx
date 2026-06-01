@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Button from './Button';
+import logo from '../assets/BitForgeIT.png';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
   const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Portfolio', path: '/portfolio' },
-    { name: 'Services', path: '/portfolio' },
-    { name: 'Team', path: '/team' },
-    { name: 'Booking', path: '/booking' },
-    { name: 'Contact', path: '/feedback' },
+    { name: 'HOME', path: '/' },
+    { name: 'PORTFOLIO', path: '/portfolio' },
+    { name: 'SERVICES', path: '/portfolio' },
+    { name: 'TEAM', path: '/team' },
+    { name: 'CONTACT', path: '/feedback' },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -22,20 +22,17 @@ const Navigation = () => {
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-accent-blue rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">BF</span>
-            </div>
-            <span className="font-syne font-bold text-xl hidden sm:block">BitForge</span>
+          <Link to="/" className="flex items-center space-x-3">
+            <img src={logo} alt="BitForge" className="h-10 w-auto" />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center space-x-1">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 to={link.path}
-                className={`font-medium transition-colors ${
+                className={`font-jetbrains text-xs uppercase tracking-wider px-3 py-2 transition-colors ${
                   isActive(link.path)
                     ? 'text-accent-blue'
                     : 'text-text-muted hover:text-text-primary'
@@ -46,10 +43,10 @@ const Navigation = () => {
             ))}
           </div>
 
-          {/* CTA Button */}
-          <div className="hidden lg:block">
+          {/* Right Side - CTA Button */}
+          <div className="hidden lg:flex items-center">
             <Link to="/booking">
-              <Button>Book Now</Button>
+              <Button variant="secondary" className="text-xs px-5 py-2">BOOK NOW</Button>
             </Link>
           </div>
 
