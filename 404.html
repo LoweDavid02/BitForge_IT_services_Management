@@ -8,27 +8,25 @@
     <meta name="description" content="Professional IT services platform offering web development, mobile apps, UI/UX design, and IT consulting." />
     
     <!-- Single Page Apps for GitHub Pages -->
-    <!-- This script checks for redirected paths and restores them -->
+    <!-- This script handles redirecting from 404 page to index.html with the path preserved -->
     <script type="text/javascript">
       // Single Page Apps for GitHub Pages
       // MIT License
       // https://github.com/rafgraph/spa-github-pages
       
-      (function(l) {
-        if (l.search[1] === '/' ) {
-          var decoded = l.search.slice(1).split('&').map(function(s) { 
-            return s.replace(/~and~/g, '&')
-          }).join('?');
-          window.history.replaceState(null, null,
-              l.pathname.slice(0, -1) + decoded + l.hash
-          );
-        }
-      }(window.location))
+      var pathSegmentsToKeep = 1;
+
+      var l = window.location;
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
     </script>
-    <script type="module" crossorigin src="/BitForge_IT_services_Management/assets/index-8cX5OHH9.js"></script>
-    <link rel="stylesheet" crossorigin href="/BitForge_IT_services_Management/assets/index-DHEUTVQa.css">
   </head>
   <body>
-    <div id="root"></div>
+    <!-- This content will not be displayed because the redirect happens immediately -->
   </body>
 </html>
