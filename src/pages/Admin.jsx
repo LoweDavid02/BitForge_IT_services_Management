@@ -1,15 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../components/Card';
 import Badge from '../components/Badge';
 import AdminLogin from '../components/AdminLogin';
 import AdminFeedback from './AdminFeedback';
+import AdminProfile from './AdminProfile';
+import DashboardContent from '../components/admin/DashboardContent';
+import AnalyticsContent from '../components/admin/AnalyticsContent';
+import BookingsContent from '../components/admin/BookingsContent';
+import CalendarContent from '../components/admin/CalendarContent';
+import SettingsContent from '../components/admin/SettingsContent';
 import logo from '../assets/BitForgeIT.png';
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [activeMenu, setActiveMenu] = useState('Dashboard');
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [adminProfile, setAdminProfile] = useState(null);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
   // Check authentication on mount
@@ -19,9 +29,41 @@ const Admin = () => {
     // Check if token exists and is valid (starts with BF-SESSION-)
     if (token && token.startsWith('BF-SESSION-')) {
       setIsAuthenticated(true);
+      
+      // Load admin profile from localStorage
+      const savedProfile = localStorage.getItem('adminProfile');
+      if (savedProfile) {
+        setAdminProfile(JSON.parse(savedProfile));
+      } else {
+        // Set default profile
+        setAdminProfile({
+          name: 'Admin User',
+          email: 'admin@bitforge.com',
+          role: 'System Administrator',
+          initials: 'AU',
+          avatar: ''
+        });
+      }
     }
     setIsLoading(false);
   }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowProfileDropdown(false);
+      }
+    };
+
+    if (showProfileDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showProfileDropdown]);
 
   // Handle login
   const handleLogin = (success) => {
@@ -32,10 +74,33 @@ const Admin = () => {
 
   // Handle logout
   const handleLogout = () => {
+    setShowLogoutModal(true);
+    setShowProfileDropdown(false);
+  };
+
+  // Confirm logout
+  const confirmLogout = () => {
     sessionStorage.removeItem('adminToken');
     sessionStorage.removeItem('adminUser');
     setIsAuthenticated(false);
+    setShowLogoutModal(false);
     navigate('/');
+  };
+
+  // Cancel logout
+  const cancelLogout = () => {
+    setShowLogoutModal(false);
+  };
+
+  // Handle profile navigation
+  const handleProfileClick = () => {
+    setActiveMenu('Profile');
+    setShowProfileDropdown(false);
+  };
+
+  // Toggle profile dropdown
+  const toggleProfileDropdown = () => {
+    setShowProfileDropdown(!showProfileDropdown);
   };
 
   // Show loading state
@@ -58,6 +123,14 @@ const Admin = () => {
   const menuItems = [
     { 
       name: 'Dashboard', 
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+      )
+    },
+    { 
+      name: 'Analytics', 
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -218,53 +291,125 @@ const Admin = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-bg-surface border-r border-border-color p-6 hidden lg:block flex flex-col">
-        <div className="mb-8">
+    <div className="min-h-screen flex bg-bg-primary">
+      {/* Fixed Sidebar */}
+      <aside className="w-64 bg-bg-surface border-r border-border-color fixed left-0 top-0 h-screen hidden lg:flex flex-col z-40">
+        {/* Logo Section */}
+        <div className="p-6 border-b border-border-color">
           <div className="flex items-center space-x-2 mb-2">
             <img src={logo} alt="BitForge" className="h-10 w-auto" />
           </div>
-          <p className="text-text-muted text-sm">Admin Panel</p>
+          <p className="text-text-muted text-xs font-jetbrains uppercase tracking-wider">Admin Panel</p>
         </div>
 
-        <nav className="space-y-2 flex-1">
+        {/* Navigation Menu */}
+        <nav className="flex-1 overflow-y-auto p-4 space-y-1">
           {menuItems.map((item) => (
             <button
               key={item.name}
               onClick={() => setActiveMenu(item.name)}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all font-medium text-sm ${
                 activeMenu === item.name
-                  ? 'bg-accent-blue text-white'
+                  ? 'bg-accent-blue text-white shadow-lg shadow-accent-blue/20'
                   : 'text-text-muted hover:bg-bg-card hover:text-text-primary'
               }`}
             >
               {item.icon}
-              <span className="font-medium">{item.name}</span>
+              <span>{item.name}</span>
             </button>
           ))}
         </nav>
 
-        {/* Logout Button */}
-        <div className="mt-auto pt-6 border-t border-border-color">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/10 transition-all"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            <span className="font-medium">Logout</span>
-          </button>
+        {/* Profile Section with Dropdown */}
+        <div className="p-4 border-t border-border-color" ref={dropdownRef}>
+          <div className="relative">
+            {/* Profile Button */}
+            <button
+              onClick={toggleProfileDropdown}
+              className="w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-text-primary hover:bg-bg-card transition-all"
+            >
+              {/* Avatar */}
+              <div className="flex-shrink-0">
+                {adminProfile?.avatar ? (
+                  <img 
+                    src={adminProfile.avatar} 
+                    alt={adminProfile.name}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-accent-blue"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent-blue to-purple-600 flex items-center justify-center border-2 border-accent-blue">
+                    <span className="font-syne font-bold text-sm text-white">
+                      {adminProfile?.initials || 'AU'}
+                    </span>
+                  </div>
+                )}
+              </div>
+              
+              {/* Name and Role */}
+              <div className="flex-1 text-left min-w-0">
+                <p className="font-medium text-sm truncate">{adminProfile?.name || 'Admin User'}</p>
+                <p className="text-xs text-text-muted truncate">{adminProfile?.role || 'Administrator'}</p>
+              </div>
+              
+              {/* Dropdown Arrow */}
+              <svg 
+                className={`w-4 h-4 text-text-muted transition-transform flex-shrink-0 ${showProfileDropdown ? 'rotate-180' : ''}`}
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {/* Dropdown Menu */}
+            {showProfileDropdown && (
+              <div className="absolute bottom-full left-0 right-0 mb-2 bg-bg-surface border border-border-color rounded-lg shadow-2xl overflow-hidden">
+                <button
+                  onClick={handleProfileClick}
+                  className="w-full flex items-center space-x-3 px-4 py-3 text-text-primary hover:bg-bg-card transition-all"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span className="font-medium text-sm">Profile</span>
+                </button>
+                
+                <div className="border-t border-border-color"></div>
+                
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center space-x-3 px-4 py-3 text-red-400 hover:bg-red-500/10 transition-all"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  <span className="font-medium text-sm">Logout</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      {/* Main Content - with left margin to account for fixed sidebar */}
+      <main className="flex-1 lg:ml-64 overflow-y-auto min-h-screen bg-bg-primary">
         {/* Conditional Rendering Based on Active Menu */}
-        {activeMenu === 'Feedback' ? (
+        {activeMenu === 'Dashboard' ? (
+          <DashboardContent />
+        ) : activeMenu === 'Analytics' ? (
+          <AnalyticsContent />
+        ) : activeMenu === 'Bookings' ? (
+          <BookingsContent />
+        ) : activeMenu === 'Calendar' ? (
+          <CalendarContent />
+        ) : activeMenu === 'Settings' ? (
+          <SettingsContent />
+        ) : activeMenu === 'Feedback' ? (
           <AdminFeedback />
-        ) : (
+        ) : activeMenu === 'Profile' ? (
+          <AdminProfile />
+        ) : activeMenu === 'Team Access' ? (
           <div className="p-6 lg:p-8">
             {/* Header */}
             <div className="mb-8">
@@ -382,8 +527,51 @@ const Admin = () => {
           </div>
         </Card>
           </div>
-        )}
+        ) : null}
       </main>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-bg-surface border border-border-color rounded-lg shadow-2xl max-w-md w-full p-6 animate-fade-in">
+            {/* Modal Header */}
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h2 className="font-syne font-bold text-xl text-white mb-1">Confirm Logout</h2>
+                <p className="text-text-muted text-sm">Are you sure you want to logout?</p>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="mb-6 p-4 bg-bg-card rounded-lg border border-border-color">
+              <p className="text-text-muted text-sm">
+                You will be redirected to the home page and will need to login again to access the admin panel.
+              </p>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex gap-3">
+              <button
+                onClick={cancelLogout}
+                className="flex-1 px-4 py-3 bg-bg-card border border-border-color text-text-primary rounded-lg hover:bg-bg-surface transition-all font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmLogout}
+                className="flex-1 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all font-medium shadow-lg shadow-red-500/20"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
