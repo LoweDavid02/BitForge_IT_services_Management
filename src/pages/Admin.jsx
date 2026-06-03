@@ -18,6 +18,7 @@ const Admin = () => {
   const [activeMenu, setActiveMenu] = useState('Dashboard');
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [adminProfile, setAdminProfile] = useState(null);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
@@ -292,14 +293,27 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen flex bg-bg-primary">
-      {/* Fixed Sidebar */}
-      <aside className="w-64 bg-bg-surface border-r border-border-color fixed left-0 top-0 h-screen hidden lg:flex flex-col z-40">
+      {/* Fixed Sidebar - Click anywhere to toggle */}
+      <aside 
+        onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+        className={`bg-bg-surface border-r border-border-color fixed left-0 top-0 h-screen hidden lg:flex flex-col z-40 transition-all duration-300 cursor-pointer ${
+          sidebarCollapsed ? 'w-20' : 'w-64'
+        }`}
+        title={sidebarCollapsed ? 'Click to expand' : 'Click to collapse'}
+      >
         {/* Logo Section */}
         <div className="p-6 border-b border-border-color">
-          <div className="flex items-center space-x-2 mb-2">
-            <img src={logo} alt="BitForge" className="h-10 w-auto" />
+          <div className={`flex items-center space-x-2 mb-2 ${sidebarCollapsed ? 'justify-center' : ''}`}>
+            {!sidebarCollapsed && <img src={logo} alt="BitForge" className="h-10 w-auto" />}
+            {sidebarCollapsed && (
+              <div className="w-10 h-10 bg-gradient-to-br from-accent-blue to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="font-syne font-bold text-white text-lg">B</span>
+              </div>
+            )}
           </div>
-          <p className="text-text-muted text-xs font-jetbrains uppercase tracking-wider">Admin Panel</p>
+          {!sidebarCollapsed && (
+            <p className="text-text-muted text-xs font-jetbrains uppercase tracking-wider">Admin Panel</p>
+          )}
         </div>
 
         {/* Navigation Menu */}
@@ -307,15 +321,21 @@ const Admin = () => {
           {menuItems.map((item) => (
             <button
               key={item.name}
-              onClick={() => setActiveMenu(item.name)}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all font-medium text-sm ${
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveMenu(item.name);
+              }}
+              className={`w-full flex items-center ${
+                sidebarCollapsed ? 'justify-center px-2' : 'space-x-3 px-4'
+              } py-3 rounded-lg transition-all font-medium text-sm ${
                 activeMenu === item.name
                   ? 'bg-accent-blue text-white shadow-lg shadow-accent-blue/20'
                   : 'text-text-muted hover:bg-bg-card hover:text-text-primary'
               }`}
+              title={sidebarCollapsed ? item.name : ''}
             >
               {item.icon}
-              <span>{item.name}</span>
+              {!sidebarCollapsed && <span>{item.name}</span>}
             </button>
           ))}
         </nav>
@@ -325,8 +345,14 @@ const Admin = () => {
           <div className="relative">
             {/* Profile Button */}
             <button
-              onClick={toggleProfileDropdown}
-              className="w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-text-primary hover:bg-bg-card transition-all"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleProfileDropdown();
+              }}
+              className={`w-full flex items-center ${
+                sidebarCollapsed ? 'justify-center px-2' : 'space-x-3 px-3'
+              } py-3 rounded-lg text-text-primary hover:bg-bg-card transition-all`}
+              title={sidebarCollapsed ? (adminProfile?.name || 'Admin User') : ''}
             >
               {/* Avatar */}
               <div className="flex-shrink-0">
@@ -345,28 +371,38 @@ const Admin = () => {
                 )}
               </div>
               
-              {/* Name and Role */}
-              <div className="flex-1 text-left min-w-0">
-                <p className="font-medium text-sm truncate">{adminProfile?.name || 'Admin User'}</p>
-                <p className="text-xs text-text-muted truncate">{adminProfile?.role || 'Administrator'}</p>
-              </div>
-              
-              {/* Dropdown Arrow */}
-              <svg 
-                className={`w-4 h-4 text-text-muted transition-transform flex-shrink-0 ${showProfileDropdown ? 'rotate-180' : ''}`}
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
+              {/* Name and Role - Hidden when collapsed */}
+              {!sidebarCollapsed && (
+                <>
+                  <div className="flex-1 text-left min-w-0">
+                    <p className="font-medium text-sm truncate">{adminProfile?.name || 'Admin User'}</p>
+                    <p className="text-xs text-text-muted truncate">{adminProfile?.role || 'Administrator'}</p>
+                  </div>
+                  
+                  {/* Dropdown Arrow */}
+                  <svg 
+                    className={`w-4 h-4 text-text-muted transition-transform flex-shrink-0 ${showProfileDropdown ? 'rotate-180' : ''}`}
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </>
+              )}
             </button>
 
             {/* Dropdown Menu */}
-            {showProfileDropdown && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 bg-bg-surface border border-border-color rounded-lg shadow-2xl overflow-hidden">
+            {showProfileDropdown && !sidebarCollapsed && (
+              <div 
+                onClick={(e) => e.stopPropagation()}
+                className="absolute bottom-full left-0 right-0 mb-2 bg-bg-surface border border-border-color rounded-lg shadow-2xl overflow-hidden"
+              >
                 <button
-                  onClick={handleProfileClick}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleProfileClick();
+                  }}
                   className="w-full flex items-center space-x-3 px-4 py-3 text-text-primary hover:bg-bg-card transition-all"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -378,7 +414,46 @@ const Admin = () => {
                 <div className="border-t border-border-color"></div>
                 
                 <button
-                  onClick={handleLogout}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLogout();
+                  }}
+                  className="w-full flex items-center space-x-3 px-4 py-3 text-red-400 hover:bg-red-500/10 transition-all"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  <span className="font-medium text-sm">Logout</span>
+                </button>
+              </div>
+            )}
+            
+            {/* Collapsed state - show menu on click */}
+            {showProfileDropdown && sidebarCollapsed && (
+              <div 
+                onClick={(e) => e.stopPropagation()}
+                className="absolute bottom-0 left-full ml-2 bg-bg-surface border border-border-color rounded-lg shadow-2xl overflow-hidden w-48"
+              >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleProfileClick();
+                  }}
+                  className="w-full flex items-center space-x-3 px-4 py-3 text-text-primary hover:bg-bg-card transition-all"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span className="font-medium text-sm">Profile</span>
+                </button>
+                
+                <div className="border-t border-border-color"></div>
+                
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLogout();
+                  }}
                   className="w-full flex items-center space-x-3 px-4 py-3 text-red-400 hover:bg-red-500/10 transition-all"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -392,8 +467,10 @@ const Admin = () => {
         </div>
       </aside>
 
-      {/* Main Content - with left margin to account for fixed sidebar */}
-      <main className="flex-1 lg:ml-64 overflow-y-auto min-h-screen bg-bg-primary">
+      {/* Main Content - with dynamic left margin based on sidebar state */}
+      <main className={`flex-1 overflow-y-auto min-h-screen bg-bg-primary transition-all duration-300 ${
+        sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'
+      }`}>
         {/* Conditional Rendering Based on Active Menu */}
         {activeMenu === 'Dashboard' ? (
           <DashboardContent />
