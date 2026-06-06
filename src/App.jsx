@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
@@ -18,24 +17,51 @@ function App() {
           <Route path="/admin" element={<Admin />} />
           
           {/* Regular routes with navigation and footer */}
-          <Route
-            path="/*"
-            element={
-              <>
-                <Navigation />
-                <main className="flex-grow">
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/portfolio" element={<Portfolio />} />
-                    <Route path="/booking" element={<Booking />} />
-                    <Route path="/team" element={<Team />} />
-                    <Route path="/feedback" element={<Feedback />} />
-                  </Routes>
-                </main>
-                <Footer />
-              </>
-            }
-          />
+          <Route path="/" element={
+            <>
+              <Navigation />
+              <main className="flex-grow">
+                <Home />
+              </main>
+              <Footer />
+            </>
+          } />
+          <Route path="/portfolio" element={
+            <>
+              <Navigation />
+              <main className="flex-grow">
+                <Portfolio />
+              </main>
+              <Footer />
+            </>
+          } />
+          <Route path="/booking" element={
+            <>
+              <Navigation />
+              <main className="flex-grow">
+                <Booking />
+              </main>
+              <Footer />
+            </>
+          } />
+          <Route path="/team" element={
+            <>
+              <Navigation />
+              <main className="flex-grow">
+                <Team />
+              </main>
+              <Footer />
+            </>
+          } />
+          <Route path="/feedback" element={
+            <>
+              <Navigation />
+              <main className="flex-grow">
+                <Feedback />
+              </main>
+              <Footer />
+            </>
+          } />
         </Routes>
       </div>
     </Router>
