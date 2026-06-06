@@ -19,6 +19,7 @@ const Admin = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [adminProfile, setAdminProfile] = useState(null);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
@@ -77,6 +78,7 @@ const Admin = () => {
   const handleLogout = () => {
     setShowLogoutModal(true);
     setShowProfileDropdown(false);
+    setMobileMenuOpen(false); // Close mobile menu
   };
 
   // Confirm logout
@@ -97,6 +99,7 @@ const Admin = () => {
   const handleProfileClick = () => {
     setActiveMenu('Profile');
     setShowProfileDropdown(false);
+    setMobileMenuOpen(false); // Close mobile menu
   };
 
   // Toggle profile dropdown
@@ -293,12 +296,43 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen flex bg-bg-primary">
-      {/* Fixed Sidebar - Click anywhere to toggle */}
+      {/* Mobile Header Bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-bg-surface border-b border-border-color z-50 flex items-center justify-between px-4">
+        <div className="flex items-center space-x-2">
+          <img src={logo} alt="BitForge" className="h-8 w-auto" />
+          <span className="font-syne font-bold text-lg">Admin</span>
+        </div>
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="text-text-primary focus:outline-none p-2 hover:bg-bg-card rounded-lg transition-colors"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {mobileMenuOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile Sidebar Overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Fixed Sidebar */}
       <aside 
         onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-        className={`bg-bg-surface border-r border-border-color fixed left-0 top-0 h-screen hidden lg:flex flex-col z-40 transition-all duration-300 cursor-pointer ${
+        className={`bg-bg-surface border-r border-border-color fixed left-0 h-screen flex flex-col z-50 transition-all duration-300 ${
           sidebarCollapsed ? 'w-20' : 'w-64'
-        }`}
+        } ${
+          // Mobile: slide in when open
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        } cursor-pointer`}
         title={sidebarCollapsed ? 'Click to expand' : 'Click to collapse'}
       >
         {/* Logo Section */}
@@ -324,6 +358,7 @@ const Admin = () => {
               onClick={(e) => {
                 e.stopPropagation();
                 setActiveMenu(item.name);
+                setMobileMenuOpen(false); // Close mobile menu
               }}
               className={`w-full flex items-center ${
                 sidebarCollapsed ? 'justify-center px-2' : 'space-x-3 px-4'
@@ -468,7 +503,7 @@ const Admin = () => {
       </aside>
 
       {/* Main Content - with dynamic left margin based on sidebar state */}
-      <main className={`flex-1 overflow-y-auto min-h-screen bg-bg-primary transition-all duration-300 ${
+      <main className={`flex-1 overflow-y-auto min-h-screen bg-bg-primary transition-all duration-300 pt-16 lg:pt-0 ${
         sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'
       }`}>
         {/* Conditional Rendering Based on Active Menu */}
