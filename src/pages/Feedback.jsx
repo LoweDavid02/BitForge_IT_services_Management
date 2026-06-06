@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import Card from '../components/Card';
+import AntiGravityBackground from '../components/AntiGravityBackground';
 
 const Feedback = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -47,7 +48,8 @@ const Feedback = () => {
   };
 
   return (
-    <div className="min-h-screen py-20 px-4">
+    <AntiGravityBackground>
+      <div className="min-h-screen py-20 px-4">
       <div className="container mx-auto max-w-3xl">
         {/* Header */}
         <div className="text-center mb-12">
@@ -209,7 +211,8 @@ const Feedback = () => {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </AntiGravityBackground>
   );
 };
 

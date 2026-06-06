@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Card from '../components/Card';
 import Badge from '../components/Badge';
+import AntiGravityBackground from '../components/AntiGravityBackground';
 
 const Team = () => {
   const [activeTab, setActiveTab] = useState('All');
@@ -115,7 +116,8 @@ const Team = () => {
     : teamMembers.filter(member => member.department === activeTab);
 
   return (
-    <div className="min-h-screen py-20 px-4">
+    <AntiGravityBackground>
+      <div className="min-h-screen py-20 px-4">
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
         <div className="text-center mb-12">
@@ -257,7 +259,8 @@ const Team = () => {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </AntiGravityBackground>
   );
 };
 

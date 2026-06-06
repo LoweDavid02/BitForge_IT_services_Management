@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import Home from './pages/Home';
+import Services from './pages/Services';
 import Portfolio from './pages/Portfolio';
 import Booking from './pages/Booking';
 import Team from './pages/Team';
@@ -22,6 +23,15 @@ function App() {
               <Navigation />
               <main className="flex-grow">
                 <Home />
+              </main>
+              <Footer />
+            </>
+          } />
+          <Route path="/services" element={
+            <>
+              <Navigation />
+              <main className="flex-grow">
+                <Services />
               </main>
               <Footer />
             </>

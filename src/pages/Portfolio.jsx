@@ -2,6 +2,7 @@ import React from 'react';
 import Card from '../components/Card';
 import Badge from '../components/Badge';
 import Button from '../components/Button';
+import AntiGravityBackground from '../components/AntiGravityBackground';
 
 const Portfolio = () => {
   const projects = [
@@ -113,7 +114,8 @@ const Portfolio = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <AntiGravityBackground>
+      <div className="min-h-screen">
       {/* Portfolio Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-7xl">
@@ -213,6 +215,7 @@ const Portfolio = () => {
         </div>
       </section>
     </div>
+    </AntiGravityBackground>
   );
 };
 
