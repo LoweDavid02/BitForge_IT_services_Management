@@ -5,6 +5,88 @@ import Badge from '../Badge';
 const BookingsContent = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterService, setFilterService] = useState('all');
+  const [sortBy, setSortBy] = useState('date');
+  const [bookingsList, setBookingsList] = useState([
+    { id: 1, client: 'Nexus Tech Solutions', service: 'AI Infrastructure Audit', date: '2024-01-15', status: 'CONFIRMED', avatar: 'NT' },
+    { id: 2, client: 'Matrix Logistics', service: 'Web3 Integration', date: '2024-01-16', status: 'PENDING', avatar: 'ML' },
+    { id: 3, client: 'Aether Ventures', service: 'Custom SaaS Dev', date: '2024-01-17', status: 'RESCHEDULED', avatar: 'AV' },
+    { id: 4, client: 'DataSphere Corp', service: 'Cybersecurity Audit', date: '2024-01-18', status: 'CONFIRMED', avatar: 'DS' },
+    { id: 5, client: 'Zenith Fintech', service: 'Mobile App Migration', date: '2024-01-19', status: 'PENDING', avatar: 'ZF' },
+    { id: 6, client: 'Quantum Systems', service: 'Cloud Infrastructure', date: '2024-01-20', status: 'CONFIRMED', avatar: 'QS' },
+    { id: 7, client: 'Nova Enterprises', service: 'DevOps Consultation', date: '2024-01-21', status: 'CONFIRMED', avatar: 'NE' },
+    { id: 8, client: 'Stellar Networks', service: 'Network Security Audit', date: '2024-01-22', status: 'PENDING', avatar: 'SN' }
+  ]);
+  const [editForm, setEditForm] = useState({ client: '', service: '', date: '', status: '' });
+
+  // Handle Edit
+  const handleEdit = (booking) => {
+    setSelectedBooking(booking);
+    setEditForm({ client: booking.client, service: booking.service, date: booking.date, status: booking.status });
+    setShowEditModal(true);
+  };
+
+  // Handle Delete
+  const handleDelete = (booking) => {
+    setSelectedBooking(booking);
+    setShowDeleteModal(true);
+  };
+
+  // Confirm Delete
+  const confirmDelete = () => {
+    setBookingsList(bookingsList.filter(b => b.id !== selectedBooking.id));
+    setShowDeleteModal(false);
+    setSelectedBooking(null);
+  };
+
+  // Save Edit
+  const saveEdit = () => {
+    setBookingsList(bookingsList.map(b => 
+      b.id === selectedBooking.id ? { ...b, ...editForm } : b
+    ));
+    setShowEditModal(false);
+    setSelectedBooking(null);
+  };
+
+  // Handle Export
+  const handleExport = (format) => {
+    const data = filteredBookings.map(b => ({
+      Client: b.client,
+      Service: b.service,
+      Date: b.date,
+      Status: b.status
+    }));
+
+    if (format === 'csv') {
+      const csv = [
+        ['Client', 'Service', 'Date', 'Status'],
+        ...data.map(d => [d.Client, d.Service, d.Date, d.Status])
+      ].map(row => row.join(',')).join('\\n');
+      
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `bookings-${Date.now()}.csv`;
+      link.click();
+    }
+    setShowExportModal(false);
+  };
+
+  // Filter bookings
+  const filteredBookings = bookingsList.filter(booking => {
+    const matchesSearch = booking.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         booking.service.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || booking.status === filterStatus;
+    const matchesService = filterService === 'all' || booking.service.includes(filterService);
+    return matchesSearch && matchesStatus && matchesService;
+  });
 
   const stats = [
     {
@@ -49,16 +131,7 @@ const BookingsContent = () => {
     }
   ];
 
-  const bookings = [
-    { client: 'Nexus Tech Solutions', service: 'AI Infrastructure Audit', date: '2024-01-15', status: 'CONFIRMED', avatar: 'NT' },
-    { client: 'Matrix Logistics', service: 'Web3 Integration', date: '2024-01-16', status: 'PENDING', avatar: 'ML' },
-    { client: 'Aether Ventures', service: 'Custom SaaS Dev', date: '2024-01-17', status: 'RESCHEDULED', avatar: 'AV' },
-    { client: 'DataSphere Corp', service: 'Cybersecurity Audit', date: '2024-01-18', status: 'CONFIRMED', avatar: 'DS' },
-    { client: 'Zenith Fintech', service: 'Mobile App Migration', date: '2024-01-19', status: 'PENDING', avatar: 'ZF' },
-    { client: 'Quantum Systems', service: 'Cloud Infrastructure', date: '2024-01-20', status: 'CONFIRMED', avatar: 'QS' },
-    { client: 'Nova Enterprises', service: 'DevOps Consultation', date: '2024-01-21', status: 'CONFIRMED', avatar: 'NE' },
-    { client: 'Stellar Networks', service: 'Network Security Audit', date: '2024-01-22', status: 'PENDING', avatar: 'SN' }
-  ];
+  const bookings = filteredBookings;
 
   const utilizationData = [
     { day: 'Mon', value: 75 },
@@ -124,19 +197,72 @@ const BookingsContent = () => {
 
       {/* Filter and Export Buttons */}
       <div className="flex gap-4 mb-6">
-        <button className="btn-secondary text-sm flex items-center gap-2">
+        <button 
+          onClick={() => setShowFilterPanel(!showFilterPanel)}
+          className="btn-secondary text-sm flex items-center gap-2"
+        >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
           </svg>
           Filter
         </button>
-        <button className="btn-secondary text-sm flex items-center gap-2">
+        <button 
+          onClick={() => setShowExportModal(true)}
+          className="btn-secondary text-sm flex items-center gap-2"
+        >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
           Export
         </button>
       </div>
+
+      {/* Filter Panel */}
+      {showFilterPanel && (
+        <Card className="p-6 mb-6 bg-bg-surface border-accent-blue/30">
+          <h3 className="font-syne font-bold text-lg mb-4">Filter Bookings</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm text-text-muted mb-2">Status</label>
+              <select 
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="input-field"
+              >
+                <option value="all">All Statuses</option>
+                <option value="CONFIRMED">Confirmed</option>
+                <option value="PENDING">Pending</option>
+                <option value="RESCHEDULED">Rescheduled</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm text-text-muted mb-2">Service</label>
+              <select 
+                value={filterService}
+                onChange={(e) => setFilterService(e.target.value)}
+                className="input-field"
+              >
+                <option value="all">All Services</option>
+                <option value="AI">AI Infrastructure</option>
+                <option value="Web3">Web3 Integration</option>
+                <option value="SaaS">SaaS Development</option>
+                <option value="Cyber">Cybersecurity</option>
+              </select>
+            </div>
+            <div className="flex items-end">
+              <button 
+                onClick={() => {
+                  setFilterStatus('all');
+                  setFilterService('all');
+                }}
+                className="btn-secondary w-full"
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Bookings Table */}
       <Card className="p-6 mb-8">
@@ -171,12 +297,20 @@ const BookingsContent = () => {
                   </td>
                   <td className="py-4 px-4">
                     <div className="flex gap-2">
-                      <button className="text-accent-blue hover:text-accent-blue-glow transition-colors" title="Edit">
+                      <button 
+                        onClick={() => handleEdit(booking)}
+                        className="text-accent-blue hover:text-accent-blue-glow transition-colors" 
+                        title="Edit"
+                      >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                       </button>
-                      <button className="text-red-400 hover:text-red-300 transition-colors" title="Delete">
+                      <button 
+                        onClick={() => handleDelete(booking)}
+                        className="text-red-400 hover:text-red-300 transition-colors" 
+                        title="Delete"
+                      >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
@@ -191,9 +325,24 @@ const BookingsContent = () => {
 
         {/* Pagination */}
         <div className="flex items-center justify-center gap-2 mt-6">
-          <button className="px-4 py-2 bg-accent-blue text-white rounded font-jetbrains text-sm">1</button>
-          <button className="px-4 py-2 bg-bg-card text-text-muted rounded hover:bg-bg-surface font-jetbrains text-sm">2</button>
-          <button className="px-4 py-2 bg-bg-card text-text-muted rounded hover:bg-bg-surface font-jetbrains text-sm">3</button>
+          <button 
+            onClick={() => setCurrentPage(1)}
+            className={`px-4 py-2 rounded font-jetbrains text-sm ${currentPage === 1 ? 'bg-accent-blue text-white' : 'bg-bg-card text-text-muted hover:bg-bg-surface'}`}
+          >
+            1
+          </button>
+          <button 
+            onClick={() => setCurrentPage(2)}
+            className={`px-4 py-2 rounded font-jetbrains text-sm ${currentPage === 2 ? 'bg-accent-blue text-white' : 'bg-bg-card text-text-muted hover:bg-bg-surface'}`}
+          >
+            2
+          </button>
+          <button 
+            onClick={() => setCurrentPage(3)}
+            className={`px-4 py-2 rounded font-jetbrains text-sm ${currentPage === 3 ? 'bg-accent-blue text-white' : 'bg-bg-card text-text-muted hover:bg-bg-surface'}`}
+          >
+            3
+          </button>
         </div>
       </Card>
 
@@ -235,6 +384,105 @@ const BookingsContent = () => {
           </div>
         </Card>
       </div>
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-bg-surface border border-border-color rounded-lg shadow-2xl max-w-md w-full p-6">
+            <h2 className="font-syne font-bold text-2xl mb-6">Edit Booking</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-text-muted mb-2">Client Name</label>
+                <input
+                  type="text"
+                  value={editForm.client}
+                  onChange={(e) => setEditForm({...editForm, client: e.target.value})}
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-text-muted mb-2">Service</label>
+                <input
+                  type="text"
+                  value={editForm.service}
+                  onChange={(e) => setEditForm({...editForm, service: e.target.value})}
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-text-muted mb-2">Date</label>
+                <input
+                  type="date"
+                  value={editForm.date}
+                  onChange={(e) => setEditForm({...editForm, date: e.target.value})}
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-text-muted mb-2">Status</label>
+                <select
+                  value={editForm.status}
+                  onChange={(e) => setEditForm({...editForm, status: e.target.value})}
+                  className="input-field"
+                >
+                  <option value="CONFIRMED">Confirmed</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="RESCHEDULED">Rescheduled</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => setShowEditModal(false)} className="flex-1 btn-secondary">Cancel</button>
+              <button onClick={saveEdit} className="flex-1 btn-primary">Save Changes</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-bg-surface border border-border-color rounded-lg shadow-2xl max-w-md w-full p-6">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
+                <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="font-syne font-bold text-xl">Delete Booking</h2>
+                <p className="text-text-muted text-sm">This action cannot be undone</p>
+              </div>
+            </div>
+            <p className="text-text-muted mb-6">
+              Are you sure you want to delete the booking for <span className="text-white font-medium">{selectedBooking?.client}</span>?
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowDeleteModal(false)} className="flex-1 btn-secondary">Cancel</button>
+              <button onClick={confirmDelete} className="flex-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all font-medium py-3">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-bg-surface border border-border-color rounded-lg shadow-2xl max-w-md w-full p-6">
+            <h2 className="font-syne font-bold text-2xl mb-6">Export Bookings</h2>
+            <p className="text-text-muted mb-6">Choose export format for {filteredBookings.length} bookings</p>
+            <div className="space-y-3">
+              <button onClick={() => handleExport('csv')} className="w-full btn-primary flex items-center justify-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Export as CSV
+              </button>
+              <button onClick={() => setShowExportModal(false)} className="w-full btn-secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

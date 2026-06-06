@@ -8,6 +8,30 @@ const CalendarContent = () => {
   const [selectedTeamMember, setSelectedTeamMember] = useState('all');
   const [showKickoff, setShowKickoff] = useState(true);
   const [showConsultation, setShowConsultation] = useState(true);
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentMonth, setCurrentMonth] = useState('October 2023');
+
+  // Handle view full schedule
+  const handleViewFullSchedule = () => {
+    alert('Opening full schedule view...\\nThis would show a detailed timeline of all events.');
+  };
+
+  // Handle event click
+  const handleEventClick = (day, event) => {
+    setSelectedEvent({ day, ...event });
+    setShowEventModal(true);
+  };
+
+  // Handle month navigation
+  const handlePrevMonth = () => {
+    alert('Navigating to previous month...');
+  };
+
+  const handleNextMonth = () => {
+    alert('Navigating to next month...');
+  };
 
   const todayAgenda = [
     {
@@ -70,6 +94,8 @@ const CalendarContent = () => {
           <input
             type="text"
             placeholder="Search calendar events..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="input-field pl-10"
           />
           <svg className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">

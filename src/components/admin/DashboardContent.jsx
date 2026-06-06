@@ -1,11 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Card from '../Card';
 import Badge from '../Badge';
 
 const DashboardContent = () => {
+  const [showMetricsModal, setShowMetricsModal] = useState(false);
+  const [showActivityModal, setShowActivityModal] = useState(false);
+  
   // Get admin name from localStorage or use default
   const adminProfile = JSON.parse(localStorage.getItem('adminProfile') || '{"name":"Admin User"}');
   const firstName = adminProfile.name.split(' ')[0];
+
+  // Handle quick link clicks
+  const handleQuickLinkClick = (label) => {
+    alert(`Opening ${label}...\\nThis would navigate to the ${label.toLowerCase()} page.`);
+  };
+
+  // Handle footer link clicks
+  const handleFooterClick = (section) => {
+    alert(`Opening ${section}...\\nThis would show the ${section.toLowerCase()} information.`);
+  };
 
   // Key metrics for overview
   const keyMetrics = [
@@ -250,7 +263,10 @@ const DashboardContent = () => {
           </div>
 
           {/* View Details Button */}
-          <button className="w-full mt-6 px-4 py-3 bg-gradient-to-r from-accent-blue/10 to-purple-600/10 border border-accent-blue/30 rounded-lg hover:from-accent-blue/20 hover:to-purple-600/20 transition-all group">
+          <button 
+            onClick={() => setShowMetricsModal(true)}
+            className="w-full mt-6 px-4 py-3 bg-gradient-to-r from-accent-blue/10 to-purple-600/10 border border-accent-blue/30 rounded-lg hover:from-accent-blue/20 hover:to-purple-600/20 transition-all group"
+          >
             <div className="flex items-center justify-center gap-2">
               <span className="text-sm font-medium text-accent-blue">View Detailed Metrics</span>
               <svg className="w-4 h-4 text-accent-blue group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -267,7 +283,10 @@ const DashboardContent = () => {
         <Card className="p-6 lg:col-span-2">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-syne font-bold text-xl">Recent Activity</h2>
-            <button className="text-accent-blue hover:text-accent-blue-glow text-sm font-jetbrains transition-colors">
+            <button 
+              onClick={() => setShowActivityModal(true)}
+              className="text-accent-blue hover:text-accent-blue-glow text-sm font-jetbrains transition-colors"
+            >
               VIEW ALL
             </button>
           </div>
@@ -292,16 +311,16 @@ const DashboardContent = () => {
           <h2 className="font-syne font-bold text-xl mb-6">Quick Links</h2>
           <div className="space-y-3">
             {quickLinks.map((link, index) => (
-              <a
+              <button
                 key={index}
-                href={link.url}
-                className="flex items-center justify-between p-3 bg-bg-card rounded-lg hover:bg-bg-primary hover:border-accent-blue border border-transparent transition-all group"
+                onClick={() => handleQuickLinkClick(link.label)}
+                className="flex items-center justify-between p-3 bg-bg-card rounded-lg hover:bg-bg-primary hover:border-accent-blue border border-transparent transition-all group w-full"
               >
                 <span className="text-sm font-medium text-white">{link.label}</span>
                 <svg className="w-5 h-5 text-text-muted group-hover:text-accent-blue transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-              </a>
+              </button>
             ))}
           </div>
           
@@ -323,11 +342,93 @@ const DashboardContent = () => {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-text-muted font-jetbrains">
         <p>&copy; 2024 BitForge IT Suite. All rights reserved.</p>
         <div className="flex gap-4 flex-wrap">
-          <button className="hover:text-accent-blue transition-colors">DOCUMENTATION</button>
-          <button className="hover:text-accent-blue transition-colors">SUPPORT</button>
-          <button className="hover:text-accent-blue transition-colors">PRIVACY</button>
+          <button 
+            onClick={() => handleFooterClick('DOCUMENTATION')}
+            className="hover:text-accent-blue transition-colors"
+          >
+            DOCUMENTATION
+          </button>
+          <button 
+            onClick={() => handleFooterClick('SUPPORT')}
+            className="hover:text-accent-blue transition-colors"
+          >
+            SUPPORT
+          </button>
+          <button 
+            onClick={() => handleFooterClick('PRIVACY')}
+            className="hover:text-accent-blue transition-colors"
+          >
+            PRIVACY
+          </button>
         </div>
       </div>
+
+      {/* Metrics Modal */}
+      {showMetricsModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-bg-surface border border-border-color rounded-lg shadow-2xl max-w-2xl w-full p-6">
+            <h2 className="font-syne font-bold text-2xl mb-6">Detailed Performance Metrics</h2>
+            <div className="space-y-6 max-h-96 overflow-y-auto">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-bg-card rounded-lg">
+                  <p className="text-text-muted text-sm mb-2">CPU Usage</p>
+                  <p className="font-syne font-bold text-2xl text-accent-blue">42%</p>
+                </div>
+                <div className="p-4 bg-bg-card rounded-lg">
+                  <p className="text-text-muted text-sm mb-2">RAM Usage</p>
+                  <p className="font-syne font-bold text-2xl text-yellow-400">4.2GB</p>
+                </div>
+                <div className="p-4 bg-bg-card rounded-lg">
+                  <p className="text-text-muted text-sm mb-2">Network I/O</p>
+                  <p className="font-syne font-bold text-2xl text-green-400">127MB/s</p>
+                </div>
+                <div className="p-4 bg-bg-card rounded-lg">
+                  <p className="text-text-muted text-sm mb-2">Disk Usage</p>
+                  <p className="font-syne font-bold text-2xl text-purple-400">68%</p>
+                </div>
+              </div>
+              <p className="text-text-muted text-sm">
+                All systems are operating within normal parameters. Last updated: Just now
+              </p>
+            </div>
+            <button 
+              onClick={() => setShowMetricsModal(false)}
+              className="w-full mt-6 btn-secondary"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Activity Modal */}
+      {showActivityModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-bg-surface border border-border-color rounded-lg shadow-2xl max-w-2xl w-full p-6">
+            <h2 className="font-syne font-bold text-2xl mb-6">All Recent Activity</h2>
+            <div className="space-y-4 max-h-96 overflow-y-auto">
+              {recentActivity.concat(recentActivity).map((activity, index) => (
+                <div key={index} className="flex items-start gap-4 p-4 bg-bg-card rounded-lg">
+                  <div className={`${activity.color} mt-1`}>
+                    {getActivityIcon(activity.icon)}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-white">{activity.action}</p>
+                    <p className="text-sm text-text-muted">{activity.user}</p>
+                  </div>
+                  <span className="text-xs text-text-muted font-jetbrains">{activity.time}</span>
+                </div>
+              ))}
+            </div>
+            <button 
+              onClick={() => setShowActivityModal(false)}
+              className="w-full mt-6 btn-secondary"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
