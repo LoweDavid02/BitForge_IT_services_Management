@@ -13,6 +13,10 @@ class DatabaseSeeder extends Seeder
             ServiceSeeder::class,
             TeamMemberSeeder::class,
             SettingsSeeder::class,
+            BookingSeeder::class,
+            FeedbackSeeder::class,
+            AuditLogSeeder::class, 
+            PortfolioProjectSeeder::class,
         ]);
     }
 }

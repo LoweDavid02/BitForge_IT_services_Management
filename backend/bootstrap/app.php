@@ -19,8 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Ensure all /api/* responses are always JSON
         $middleware->prependToGroup('api', ForceJsonResponse::class);
 
-        // Stateful Sanctum requests (needed if frontend is same-domain SPA)
-        $middleware->statefulApi();
+        // NOTE: statefulApi() is intentionally NOT called here.
+        // This app uses Sanctum API token auth (Bearer tokens in sessionStorage),
+        // NOT cookie-based SPA auth. Calling statefulApi() would activate
+        // EnsureFrontendRequestsAreStateful which enforces CSRF validation on
+        // API routes, causing "CSRF token mismatch" errors for token-auth clients.
 
         // Register the 'admin' middleware alias
         $middleware->alias([
