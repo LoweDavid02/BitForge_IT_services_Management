@@ -5,14 +5,31 @@ echo "========================================"
 echo " BitForge API — Container Starting"
 echo "========================================"
 
-# Wait for PostgreSQL (Supabase) to be ready
+# Wait for PostgreSQL (Supabase) to accept connections.
+# Supports both DB_URL (single connection string) and individual DB_* vars.
 echo "==> Waiting for database connection..."
 MAX_TRIES=30
 TRIES=0
 until php -r "
+    \$url = getenv('DB_URL');
+    if (\$url) {
+        // Parse postgresql://user:pass@host:port/dbname
+        \$parts = parse_url(\$url);
+        \$host   = \$parts['host'];
+        \$port   = \$parts['port'] ?? 5432;
+        \$dbname = ltrim(\$parts['path'] ?? '/postgres', '/');
+        \$user   = \$parts['user']   ?? 'postgres';
+        \$pass   = \$parts['pass']   ?? '';
+    } else {
+        \$host   = getenv('DB_HOST')     ?: '127.0.0.1';
+        \$port   = getenv('DB_PORT')     ?: 5432;
+        \$dbname = getenv('DB_DATABASE') ?: 'postgres';
+        \$user   = getenv('DB_USERNAME') ?: 'postgres';
+        \$pass   = getenv('DB_PASSWORD') ?: '';
+    }
     try {
-        \$dsn = 'pgsql:host=' . getenv('DB_HOST') . ';port=' . (getenv('DB_PORT') ?: '5432') . ';dbname=' . getenv('DB_DATABASE');
-        new PDO(\$dsn, getenv('DB_USERNAME'), getenv('DB_PASSWORD'), [PDO::ATTR_TIMEOUT => 3]);
+        \$dsn = \"pgsql:host={\$host};port={\$port};dbname={\$dbname}\";
+        new PDO(\$dsn, \$user, \$pass, [PDO::ATTR_TIMEOUT => 3]);
         exit(0);
     } catch (Exception \$e) {
         exit(1);
@@ -20,7 +37,7 @@ until php -r "
 " 2>/dev/null; do
     TRIES=$((TRIES + 1))
     if [ "$TRIES" -ge "$MAX_TRIES" ]; then
-        echo "    Database did not become ready in time. Exiting."
+        echo "    Database did not become ready after $MAX_TRIES attempts. Exiting."
         exit 1
     fi
     echo "    Not ready yet (attempt $TRIES/$MAX_TRIES), retrying in 3s..."
@@ -41,7 +58,6 @@ echo "==> Running migrations..."
 php artisan migrate --force
 
 echo "==> Seeding database..."
-# All seeders use firstOrCreate or count() guards — idempotent on every boot
 php artisan db:seed --force
 
 echo "==> Starting Nginx + PHP-FPM via Supervisor..."
