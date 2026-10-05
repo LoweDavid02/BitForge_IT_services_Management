@@ -13,13 +13,12 @@ TRIES=0
 until php -r "
     \$url = getenv('DB_URL');
     if (\$url) {
-        // Parse postgresql://user:pass@host:port/dbname
-        \$parts = parse_url(\$url);
+        \$parts  = parse_url(\$url);
         \$host   = \$parts['host'];
         \$port   = \$parts['port'] ?? 5432;
         \$dbname = ltrim(\$parts['path'] ?? '/postgres', '/');
-        \$user   = \$parts['user']   ?? 'postgres';
-        \$pass   = \$parts['pass']   ?? '';
+        \$user   = \$parts['user'] ?? 'postgres';
+        \$pass   = \$parts['pass'] ?? '';
     } else {
         \$host   = getenv('DB_HOST')     ?: '127.0.0.1';
         \$port   = getenv('DB_PORT')     ?: 5432;
@@ -28,10 +27,11 @@ until php -r "
         \$pass   = getenv('DB_PASSWORD') ?: '';
     }
     try {
-        \$dsn = \"pgsql:host={\$host};port={\$port};dbname={\$dbname}\";
-        new PDO(\$dsn, \$user, \$pass, [PDO::ATTR_TIMEOUT => 3]);
+        \$dsn = \"pgsql:host={\$host};port={\$port};dbname={\$dbname};sslmode=require\";
+        new PDO(\$dsn, \$user, \$pass, [PDO::ATTR_TIMEOUT => 5]);
         exit(0);
     } catch (Exception \$e) {
+        fwrite(STDERR, \$e->getMessage() . PHP_EOL);
         exit(1);
     }
 " 2>/dev/null; do
@@ -44,6 +44,11 @@ until php -r "
     sleep 3
 done
 echo "    Database is ready."
+
+# Clear any stale bootstrap cache before caching fresh config
+echo "==> Clearing stale cache..."
+php artisan config:clear  || true
+php artisan cache:clear   || true
 
 echo "==> Caching configuration..."
 php artisan config:cache

@@ -4,14 +4,15 @@ namespace Database\Seeders;
 // backend/database/seeders/AuditLogSeeder.php
 use App\Models\AuditLog;
 use App\Models\User;
-use Illuminate\Database\Seeder; 
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class AuditLogSeeder extends Seeder
 {
     public function run(): void
     {
-        // Skip if already seeded — safe to re-run on every container boot
-        if (AuditLog::count() > 0) return;
+        // Skip if table doesn't exist yet or already has data
+        if (!Schema::hasTable('audit_logs') || AuditLog::count() > 0) return;
 
         $admin = User::where('role', 'admin')->first();
         if (!$admin) return;

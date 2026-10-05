@@ -2,18 +2,18 @@
 
 namespace Database\Seeders;
 
-// backend/database/seeders/BookingSeeder.php
 use App\Models\Booking;
 use App\Models\Service;
 use App\Services\AvatarService;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class BookingSeeder extends Seeder
 {
     public function run(): void
     {
-        // Skip if already seeded — safe to re-run on every container boot
-        if (Booking::count() > 0) return;
+        // Skip if table doesn't exist yet or already has data
+        if (!Schema::hasTable('bookings') || Booking::count() > 0) return;
 
         $services = Service::all();
         $avatar   = new AvatarService();
