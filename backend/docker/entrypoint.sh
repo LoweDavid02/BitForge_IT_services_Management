@@ -60,7 +60,7 @@ echo "==> Caching views..."
 php artisan view:cache
 
 echo "==> Running migrations..."
-php artisan migrate:fresh --force
+php artisan migrate --force
 
 echo "==> Seeding database..."
 php artisan db:seed --force
