@@ -12,6 +12,9 @@ class BookingSeeder extends Seeder
 {
     public function run(): void
     {
+        // Skip if already seeded — safe to re-run on every container boot
+        if (Booking::count() > 0) return;
+
         $services = Service::all();
         $avatar   = new AvatarService();
         $statuses = ['PENDING','CONFIRMED','COMPLETED','CANCELLED','RESCHEDULED'];

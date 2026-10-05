@@ -12,6 +12,9 @@ class FeedbackSeeder extends Seeder
 {
     public function run(): void
     {
+        // Skip if already seeded — safe to re-run on every container boot
+        if (Feedback::count() > 0) return;
+
         $services  = Service::all();
         $avatar    = new AvatarService();
         $statuses  = ['new', 'in-progress', 'resolved'];

@@ -10,6 +10,9 @@ class AuditLogSeeder extends Seeder
 {
     public function run(): void
     {
+        // Skip if already seeded — safe to re-run on every container boot
+        if (AuditLog::count() > 0) return;
+
         $admin = User::where('role', 'admin')->first();
         if (!$admin) return;
 
