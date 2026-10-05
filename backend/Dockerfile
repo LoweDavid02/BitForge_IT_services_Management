@@ -54,6 +54,7 @@ RUN mkdir -p storage/logs \
              storage/framework/sessions \
              storage/framework/views \
              bootstrap/cache \
+             /var/log/supervisor \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
