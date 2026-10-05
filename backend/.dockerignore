@@ -35,4 +35,3 @@ Thumbs.db
 
 # Docker build files themselves (already in image context)
 Dockerfile
-docker/
