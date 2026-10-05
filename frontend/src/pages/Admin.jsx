@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authAPI } from '../api/client';
 import Card from '../components/Card';
 import Badge from '../components/Badge';
 import AdminLogin from '../components/AdminLogin';
@@ -11,6 +12,7 @@ import BookingsContent from '../components/admin/BookingsContent';
 import CalendarContent from '../components/admin/CalendarContent';
 import SettingsContent from '../components/admin/SettingsContent';
 import logo from '../assets/BitForgeIT.png';
+import TeamAccessContent from '../components/admin/TeamAccessContent';
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -24,30 +26,37 @@ const Admin = () => {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  // Check authentication on mount
+  // Check authentication on mount — validate against the real backend
   useEffect(() => {
     const token = sessionStorage.getItem('adminToken');
-    
-    // Check if token exists and is valid (starts with BF-SESSION-)
-    if (token && token.startsWith('BF-SESSION-')) {
-      setIsAuthenticated(true);
-      
-      // Load admin profile from localStorage
-      const savedProfile = localStorage.getItem('adminProfile');
-      if (savedProfile) {
-        setAdminProfile(JSON.parse(savedProfile));
-      } else {
-        // Set default profile
-        setAdminProfile({
-          name: 'Admin User',
-          email: 'admin@bitforge.com',
-          role: 'System Administrator',
-          initials: 'AU',
-          avatar: ''
-        });
-      }
+    if (token) {
+      authAPI.me()
+        .then(({ data }) => {
+          setIsAuthenticated(true);
+          const user = data.data;
+          const profile = {
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            phone: user.phone || '',
+            department: user.department || '',
+            location: user.location || '',
+            bio: user.bio || '',
+            avatar: user.avatar || '',
+            initials: user.initials || user.name.slice(0, 2).toUpperCase(),
+            joinDate: user.join_date || '',
+          };
+          setAdminProfile(profile);
+          localStorage.setItem('adminProfile', JSON.stringify(profile));
+        })
+        .catch(() => {
+          sessionStorage.removeItem('adminToken');
+          sessionStorage.removeItem('adminUser');
+        })
+        .finally(() => setIsLoading(false));
+    } else {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
   // Close dropdown when clicking outside
@@ -81,8 +90,9 @@ const Admin = () => {
     setMobileMenuOpen(false); // Close mobile menu
   };
 
-  // Confirm logout
-  const confirmLogout = () => {
+  // Confirm logout — call backend to revoke token, then clear session
+  const confirmLogout = async () => {
+    try { await authAPI.logout(); } catch (_) { /* ignore if already expired */ }
     sessionStorage.removeItem('adminToken');
     sessionStorage.removeItem('adminUser');
     setIsAuthenticated(false);
@@ -125,56 +135,56 @@ const Admin = () => {
   }
 
   const menuItems = [
-    { 
-      name: 'Dashboard', 
+    {
+      name: 'Dashboard',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
         </svg>
       )
     },
-    { 
-      name: 'Analytics', 
+    {
+      name: 'Analytics',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
         </svg>
       )
     },
-    { 
-      name: 'Bookings', 
+    {
+      name: 'Bookings',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       )
     },
-    { 
-      name: 'Team Access', 
+    {
+      name: 'Team Access',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
       )
     },
-    { 
-      name: 'Calendar', 
+    {
+      name: 'Calendar',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       )
     },
-    { 
-      name: 'Feedback', 
+    {
+      name: 'Feedback',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
         </svg>
       )
     },
-    { 
-      name: 'Settings', 
+    {
+      name: 'Settings',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -185,45 +195,45 @@ const Admin = () => {
   ];
 
   const metrics = [
-    { 
-      label: 'Total Employees', 
-      value: '10', 
+    {
+      label: 'Total Employees',
+      value: '10',
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
-      ), 
-      color: 'text-blue-400' 
+      ),
+      color: 'text-blue-400'
     },
-    { 
-      label: 'Admins', 
-      value: '1', 
+    {
+      label: 'Admins',
+      value: '1',
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
         </svg>
-      ), 
-      color: 'text-green-400' 
+      ),
+      color: 'text-green-400'
     },
-    { 
-      label: 'Developers', 
-      value: '3', 
+    {
+      label: 'Developers',
+      value: '3',
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
         </svg>
-      ), 
-      color: 'text-purple-400' 
+      ),
+      color: 'text-purple-400'
     },
-    { 
-      label: 'QA', 
-      value: '2', 
+    {
+      label: 'QA',
+      value: '2',
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-      ), 
-      color: 'text-orange-400' 
+      ),
+      color: 'text-orange-400'
     },
   ];
 
@@ -318,21 +328,20 @@ const Admin = () => {
 
       {/* Mobile Sidebar Overlay */}
       {mobileMenuOpen && (
-        <div 
+        <div
           className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
       {/* Fixed Sidebar */}
-      <aside 
+      <aside
         onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-        className={`bg-bg-surface border-r border-border-color fixed left-0 h-screen flex flex-col z-50 transition-all duration-300 ${
-          sidebarCollapsed ? 'w-20' : 'w-64'
-        } ${
+        className={`bg-bg-surface border-r border-border-color fixed left-0 h-screen flex flex-col z-50 transition-all duration-300 ${sidebarCollapsed ? 'w-20' : 'w-64'
+          } ${
           // Mobile: slide in when open
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } cursor-pointer`}
+          } cursor-pointer`}
         title={sidebarCollapsed ? 'Click to expand' : 'Click to collapse'}
       >
         {/* Logo Section */}
@@ -360,13 +369,11 @@ const Admin = () => {
                 setActiveMenu(item.name);
                 setMobileMenuOpen(false); // Close mobile menu
               }}
-              className={`w-full flex items-center ${
-                sidebarCollapsed ? 'justify-center px-2' : 'space-x-3 px-4'
-              } py-3 rounded-lg transition-all font-medium text-sm ${
-                activeMenu === item.name
+              className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center px-2' : 'space-x-3 px-4'
+                } py-3 rounded-lg transition-all font-medium text-sm ${activeMenu === item.name
                   ? 'bg-accent-blue text-white shadow-lg shadow-accent-blue/20'
                   : 'text-text-muted hover:bg-bg-card hover:text-text-primary'
-              }`}
+                }`}
               title={sidebarCollapsed ? item.name : ''}
             >
               {item.icon}
@@ -384,16 +391,15 @@ const Admin = () => {
                 e.stopPropagation();
                 toggleProfileDropdown();
               }}
-              className={`w-full flex items-center ${
-                sidebarCollapsed ? 'justify-center px-2' : 'space-x-3 px-3'
-              } py-3 rounded-lg text-text-primary hover:bg-bg-card transition-all`}
+              className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center px-2' : 'space-x-3 px-3'
+                } py-3 rounded-lg text-text-primary hover:bg-bg-card transition-all`}
               title={sidebarCollapsed ? (adminProfile?.name || 'Admin User') : ''}
             >
               {/* Avatar */}
               <div className="flex-shrink-0">
                 {adminProfile?.avatar ? (
-                  <img 
-                    src={adminProfile.avatar} 
+                  <img
+                    src={adminProfile.avatar}
                     alt={adminProfile.name}
                     className="w-10 h-10 rounded-full object-cover border-2 border-accent-blue"
                   />
@@ -405,7 +411,7 @@ const Admin = () => {
                   </div>
                 )}
               </div>
-              
+
               {/* Name and Role - Hidden when collapsed */}
               {!sidebarCollapsed && (
                 <>
@@ -413,12 +419,12 @@ const Admin = () => {
                     <p className="font-medium text-sm truncate">{adminProfile?.name || 'Admin User'}</p>
                     <p className="text-xs text-text-muted truncate">{adminProfile?.role || 'Administrator'}</p>
                   </div>
-                  
+
                   {/* Dropdown Arrow */}
-                  <svg 
+                  <svg
                     className={`w-4 h-4 text-text-muted transition-transform flex-shrink-0 ${showProfileDropdown ? 'rotate-180' : ''}`}
-                    fill="none" 
-                    stroke="currentColor" 
+                    fill="none"
+                    stroke="currentColor"
                     viewBox="0 0 24 24"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -429,7 +435,7 @@ const Admin = () => {
 
             {/* Dropdown Menu */}
             {showProfileDropdown && !sidebarCollapsed && (
-              <div 
+              <div
                 onClick={(e) => e.stopPropagation()}
                 className="absolute bottom-full left-0 right-0 mb-2 bg-bg-surface border border-border-color rounded-lg shadow-2xl overflow-hidden"
               >
@@ -445,9 +451,9 @@ const Admin = () => {
                   </svg>
                   <span className="font-medium text-sm">Profile</span>
                 </button>
-                
+
                 <div className="border-t border-border-color"></div>
-                
+
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -462,10 +468,10 @@ const Admin = () => {
                 </button>
               </div>
             )}
-            
+
             {/* Collapsed state - show menu on click */}
             {showProfileDropdown && sidebarCollapsed && (
-              <div 
+              <div
                 onClick={(e) => e.stopPropagation()}
                 className="absolute bottom-0 left-full ml-2 bg-bg-surface border border-border-color rounded-lg shadow-2xl overflow-hidden w-48"
               >
@@ -481,9 +487,9 @@ const Admin = () => {
                   </svg>
                   <span className="font-medium text-sm">Profile</span>
                 </button>
-                
+
                 <div className="border-t border-border-color"></div>
-                
+
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -503,9 +509,8 @@ const Admin = () => {
       </aside>
 
       {/* Main Content - with dynamic left margin based on sidebar state */}
-      <main className={`flex-1 overflow-y-auto min-h-screen bg-bg-primary transition-all duration-300 pt-16 lg:pt-0 ${
-        sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'
-      }`}>
+      <main className={`flex-1 overflow-y-auto min-h-screen bg-bg-primary transition-all duration-300 pt-16 lg:pt-0 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'
+        }`}>
         {/* Conditional Rendering Based on Active Menu */}
         {activeMenu === 'Dashboard' ? (
           <DashboardContent />
@@ -522,123 +527,7 @@ const Admin = () => {
         ) : activeMenu === 'Profile' ? (
           <AdminProfile />
         ) : activeMenu === 'Team Access' ? (
-          <div className="p-6 lg:p-8">
-            {/* Header */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h1 className="font-syne font-bold text-4xl mb-2">
-                    Role-Based Access Control
-                  </h1>
-                  <p className="text-text-muted">
-                    Manage team member permissions and access levels
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Badge active>ADMIN ONLY</Badge>
-                  <button
-                    onClick={handleLogout}
-                    className="lg:hidden text-red-400 hover:text-red-300 transition-colors text-sm flex items-center gap-2"
-                  >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {metrics.map((metric, index) => (
-            <Card key={index} className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-text-muted text-sm mb-1">{metric.label}</p>
-                  <p className={`font-syne font-bold text-3xl ${metric.color}`}>
-                    {metric.value}
-                  </p>
-                </div>
-                <div className={metric.color}>{metric.icon}</div>
-              </div>
-            </Card>
-          ))}
-        </div>
-
-        {/* Employee Access Table */}
-        <Card className="p-6 mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-syne font-bold text-2xl">Employee Access</h2>
-            <button className="btn-primary text-sm">
-              + Add Employee
-            </button>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border-color">
-                  <th className="text-left py-3 px-4 font-medium text-text-muted">Name</th>
-                  <th className="text-left py-3 px-4 font-medium text-text-muted">Role</th>
-                  <th className="text-left py-3 px-4 font-medium text-text-muted">Access Level</th>
-                  <th className="text-left py-3 px-4 font-medium text-text-muted">Last Modified</th>
-                  <th className="text-left py-3 px-4 font-medium text-text-muted">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {employees.map((employee, index) => (
-                  <tr key={index} className="border-b border-border-color hover:bg-bg-card transition-colors">
-                    <td className="py-4 px-4 font-medium">{employee.name}</td>
-                    <td className="py-4 px-4 text-text-muted">{employee.role}</td>
-                    <td className="py-4 px-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getAccessLevelColor(employee.accessLevel)}`}>
-                        {employee.accessLevel}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4 text-text-muted">{employee.lastModified}</td>
-                    <td className="py-4 px-4">
-                      <div className="flex gap-2">
-                        <button className="text-accent-blue hover:text-accent-blue-glow transition-colors">
-                          Edit
-                        </button>
-                        <button className="text-red-400 hover:text-red-300 transition-colors">
-                          Remove
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-
-        {/* Audit Log */}
-        <Card className="p-6">
-          <h2 className="font-syne font-bold text-2xl mb-6">Audit Log</h2>
-          
-          <div className="space-y-4">
-            {auditLogs.map((log, index) => (
-              <div 
-                key={index}
-                className="flex items-start gap-4 p-4 bg-bg-card rounded-lg hover:bg-bg-surface transition-colors"
-              >
-                <div className="w-2 h-2 bg-accent-blue rounded-full mt-2"></div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-medium">{log.action}</h3>
-                    <span className="text-text-muted text-sm">{log.timestamp}</span>
-                  </div>
-                  <p className="text-text-muted text-sm">
-                    <span className="text-accent-blue">{log.user}</span> - {log.details}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-          </div>
+          <TeamAccessContent />
         ) : null}
       </main>
 

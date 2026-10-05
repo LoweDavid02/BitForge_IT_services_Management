@@ -10,4 +10,14 @@ export default defineConfig({
     assetsDir: 'assets',
     emptyOutDir: true,
   },
+  server: {
+    // Proxy all /api/* requests to the Laravel dev server so there are no CORS issues in development
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 })

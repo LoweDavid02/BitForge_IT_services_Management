@@ -2,46 +2,52 @@ import React, { useState } from 'react';
 import Button from './Button';
 import Input from './Input';
 import logo from '../assets/BitForgeIT.png';
+import { authAPI } from '../api/client';
 
 const AdminLogin = ({ onLogin }) => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Demo credentials (in production, validate against backend API)
-  const VALID_CREDENTIALS = {
-    username: 'admin',
-    password: 'BitForge2026!'
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
-    // Simulate authentication delay
-    setTimeout(() => {
-      if (username === VALID_CREDENTIALS.username && password === VALID_CREDENTIALS.password) {
-        // Generate session token
-        const sessionToken = `BF-SESSION-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        sessionStorage.setItem('adminToken', sessionToken);
-        sessionStorage.setItem('adminUser', username);
-        onLogin(true);
-      } else {
-        setError('Invalid username or password. Please try again.');
-        setPassword('');
-      }
+    try {
+      const { data } = await authAPI.login({ email, password });
+      // Store the real Sanctum token
+      sessionStorage.setItem('adminToken', data.token);
+      sessionStorage.setItem('adminUser', data.user.email);
+      // Persist profile so Admin.jsx can display it immediately
+      localStorage.setItem('adminProfile', JSON.stringify({
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role,
+        phone: data.user.phone || '',
+        department: data.user.department || '',
+        location: data.user.location || '',
+        bio: data.user.bio || '',
+        avatar: data.user.avatar || '',
+        initials: data.user.initials || data.user.name.slice(0, 2).toUpperCase(),
+        joinDate: data.user.join_date || '',
+      }));
+      onLogin(true);
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Invalid credentials. Please try again.';
+      setError(msg);
+      setPassword('');
+    } finally {
       setIsLoading(false);
-    }, 800);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-bg-primary">
-      {/* Background Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,102,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,102,255,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
-      
+
       <div className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -57,17 +63,13 @@ const AdminLogin = ({ onLogin }) => {
         <div className="bg-bg-surface border border-border-color rounded-lg p-8 shadow-lg">
           <div className="mb-6">
             <h1 className="font-syne font-bold text-2xl mb-2">Welcome Back</h1>
-            <p className="text-text-muted text-sm">
-              Sign in to access the admin dashboard
-            </p>
+            <p className="text-text-muted text-sm">Sign in to access the admin dashboard</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Username Input */}
+            {/* Email */}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium mb-2">
-                Username
-              </label>
+              <label htmlFor="email" className="block text-sm font-medium mb-2">Email</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg className="w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,11 +77,11 @@ const AdminLogin = ({ onLogin }) => {
                   </svg>
                 </div>
                 <Input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter your username"
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@bitforge.io"
                   required
                   disabled={isLoading}
                   className="pl-10"
@@ -88,11 +90,9 @@ const AdminLogin = ({ onLogin }) => {
               </div>
             </div>
 
-            {/* Password Input */}
+            {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium mb-2">
-                Password
-              </label>
+              <label htmlFor="password" className="block text-sm font-medium mb-2">Password</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg className="w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,9 +130,8 @@ const AdminLogin = ({ onLogin }) => {
               </div>
             </div>
 
-            {/* Error Message */}
             {error && (
-              <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 animate-shake">
+              <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3">
                 <p className="text-red-400 text-sm flex items-center gap-2">
                   <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -142,12 +141,7 @@ const AdminLogin = ({ onLogin }) => {
               </div>
             )}
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              disabled={isLoading || !username || !password}
-              className="w-full"
-            >
+            <Button type="submit" disabled={isLoading || !email || !password} className="w-full">
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
                   <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
@@ -156,48 +150,38 @@ const AdminLogin = ({ onLogin }) => {
                   </svg>
                   Signing In...
                 </span>
-              ) : (
-                'Sign In'
-              )}
+              ) : 'Sign In'}
             </Button>
           </form>
 
-          {/* Security Notice */}
           <div className="mt-6 pt-6 border-t border-border-color">
             <div className="flex items-start gap-2 text-text-muted text-xs">
               <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
               <p className="leading-relaxed">
-                This area is restricted to authorized administrators only. 
+                This area is restricted to authorized administrators only.
                 All login attempts are logged and monitored for security.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Help Text */}
         <div className="text-center mt-6">
           <p className="text-text-muted text-sm">
             Forgot your password?{' '}
-            <a href="mailto:admin@bitforge.com" className="text-accent-blue hover:text-accent-blue-glow transition-colors">
+            <a href="mailto:admin@bitforge.io" className="text-accent-blue hover:text-accent-blue-glow transition-colors">
               Contact Support
             </a>
           </p>
         </div>
 
-        {/* Demo Credentials (Remove in production) */}
+        {/* Demo credentials hint */}
         <div className="mt-6 bg-accent-blue/10 border border-accent-blue/30 rounded-lg p-4">
-          <p className="text-accent-blue text-xs font-jetbrains uppercase tracking-wider mb-2">
-            Demo Credentials:
-          </p>
+          <p className="text-accent-blue text-xs font-jetbrains uppercase tracking-wider mb-2">Demo Credentials:</p>
           <div className="space-y-1 text-sm">
-            <p className="text-text-muted">
-              <span className="text-text-primary font-medium">Username:</span> admin
-            </p>
-            <p className="text-text-muted">
-              <span className="text-text-primary font-medium">Password:</span> BitForge2026!
-            </p>
+            <p className="text-text-muted"><span className="text-text-primary font-medium">Email:</span> admin@bitforge.io</p>
+            <p className="text-text-muted"><span className="text-text-primary font-medium">Password:</span> BitForge2026!</p>
           </div>
         </div>
       </div>
